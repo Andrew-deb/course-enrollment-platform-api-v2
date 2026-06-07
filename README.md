@@ -91,10 +91,16 @@ alembic downgrade -1
 uvicorn app.main:app --reload
 ```
 
-The API will be available at `http://localhost:8000`.
+The API will be available at `http://localhost:8000` (locally) and `https://course-enrollment-platform-api-v2.onrender.com` (live).
 
+### Local Links
+- **API URL**: http://localhost:8000
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
+
+### Deployed Live Links
+- **API URL**: https://course-enrollment-platform-api-v2.onrender.com
+- **Swagger UI**: https://course-enrollment-platform-api-v2.onrender.com/docs
 
 ## Running Tests
 
