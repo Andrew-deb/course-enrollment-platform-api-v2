@@ -57,6 +57,7 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
         yield db_session
 
     app.dependency_overrides[get_async_db] = override_get_db
+    app.state.limiter.enabled = False
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
@@ -87,9 +88,9 @@ async def get_token(
 ) -> str:
     """Login and return the access token."""
     response = await client.post(
-        "/api/v1/auth/token",
-        data={"username": email, "password": password},
-    )
+         "/api/v1/auth/token",
+         data={"email": email, "password": password},
+     )
     return response.json()["access_token"]
 
 

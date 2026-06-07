@@ -9,6 +9,7 @@ from app.core.db_async import Base
 from app.models.users import User            # noqa: F401
 from app.models.courses import Course        # noqa: F401
 from app.models.enrollments import Enrollment  # noqa: F401
+from app.models.audit_logs import EnrollmentAuditLog  # noqa: F401
 
 config = context.config
 

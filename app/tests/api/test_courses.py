@@ -22,7 +22,7 @@ async def test_list_active_courses(client: AsyncClient):
     response = await client.get("/api/v1/courses/")
     assert response.status_code == 200
     data = response.json()
-    assert len(data) == 2
+    assert len(data["items"]) == 2
 
 
 @pytest.mark.asyncio
@@ -42,7 +42,7 @@ async def test_list_courses_excludes_inactive(client: AsyncClient):
 
     response = await client.get("/api/v1/courses/")
     assert response.status_code == 200
-    assert len(response.json()) == 1
+    assert len(response.json()["items"]) == 1
 
 
 # ── GET /courses/{id}

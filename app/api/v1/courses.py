@@ -1,20 +1,24 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import get_async_db, require_admin
 from app.services.course_service import CourseService
-from app.schemas.courses import CourseCreate, CourseUpdate, CoursePatch, CourseRead
+from app.schemas.courses import CourseCreate, CourseUpdate, CoursePatch, CourseRead, PaginatedCourses
 
 router = APIRouter(prefix="/courses", tags=["Courses"])
 
 
-# ── Public endpoints ───────────────────────────────────────────────────────────
+# Public endpoints
 
-@router.get("/", response_model=list[CourseRead])
+@router.get("/", response_model=PaginatedCourses)
 async def list_courses(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+    title: str | None = Query(None),
     db: AsyncSession = Depends(get_async_db),
 ):
-    return await CourseService.get_all_active(db)
+    items, total = await CourseService.get_all_active(db, skip=skip, limit=limit, title=title)
+    return {"items": items, "total": total, "skip": skip, "limit": limit}
 
 
 @router.get("/{course_id}", response_model=CourseRead)
@@ -25,7 +29,7 @@ async def get_course(
     return await CourseService.get_by_id(db, course_id)
 
 
-# ── Admin-only endpoints ──────────────────────────────────────────────────────
+# Admin-only endpoints 
 
 @router.post("/", response_model=CourseRead, status_code=201)
 async def create_course(

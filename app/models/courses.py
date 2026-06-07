@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import String
@@ -12,11 +13,12 @@ if TYPE_CHECKING:
 class Course(Base):
     __tablename__ = "courses"
 
-    id:        Mapped[int]  = mapped_column(primary_key=True, autoincrement=True)
-    title:     Mapped[str]  = mapped_column(String(200))
-    code:      Mapped[str]  = mapped_column(String(20), unique=True, index=True)
-    capacity:  Mapped[int]  = mapped_column()
-    is_active: Mapped[bool] = mapped_column(default=True)
+    id:         Mapped[int]             = mapped_column(primary_key=True, autoincrement=True)
+    title:      Mapped[str]             = mapped_column(String(200))
+    code:       Mapped[str]             = mapped_column(String(20), unique=True, index=True)
+    capacity:   Mapped[int]             = mapped_column()
+    is_active:  Mapped[bool]            = mapped_column(default=True)
+    deleted_at: Mapped[datetime | None] = mapped_column(default=None, nullable=True)
 
     # One-to-Many: course has many enrollments
     enrollments: Mapped[list["Enrollment"]] = relationship(

@@ -77,7 +77,7 @@ async def test_login_success(client: AsyncClient):
     await create_user(client, email="login@example.com", password="mypassword")
     response = await client.post(
         "/api/v1/auth/token",
-        data={"username": "login@example.com", "password": "mypassword"},
+        data={"email": "login@example.com", "password": "mypassword"},
     )
     assert response.status_code == 200
     data = response.json()
@@ -90,7 +90,7 @@ async def test_login_wrong_password(client: AsyncClient):
     await create_user(client, email="wrong@example.com", password="correct")
     response = await client.post(
         "/api/v1/auth/token",
-        data={"username": "wrong@example.com", "password": "incorrect"},
+        data={"email": "wrong@example.com", "password": "incorrect"},
     )
     assert response.status_code == 401
 
@@ -99,7 +99,7 @@ async def test_login_wrong_password(client: AsyncClient):
 async def test_login_nonexistent_user(client: AsyncClient):
     response = await client.post(
         "/api/v1/auth/token",
-        data={"username": "ghost@example.com", "password": "any"},
+        data={"email": "ghost@example.com", "password": "any"},
     )
     assert response.status_code == 401
 

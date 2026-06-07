@@ -164,8 +164,8 @@ async def test_list_own_enrollments_student(client: AsyncClient):
     )
     assert response.status_code == 200
     data = response.json()
-    assert len(data) == 1
-    assert data[0]["course_id"] == course["id"]
+    assert len(data["items"]) == 1
+    assert data["items"][0]["course_id"] == course["id"]
 
 
 @pytest.mark.asyncio
@@ -198,7 +198,7 @@ async def test_admin_list_all_enrollments(client: AsyncClient):
         headers=auth_headers(admin_token),
     )
     assert response.status_code == 200
-    assert len(response.json()) == 2
+    assert len(response.json()["items"]) == 2
 
 
 @pytest.mark.asyncio
@@ -231,8 +231,8 @@ async def test_admin_filter_enrollments_by_course(client: AsyncClient):
     )
     assert response.status_code == 200
     data = response.json()
-    assert len(data) == 1
-    assert data[0]["course_id"] == course_a["id"]
+    assert len(data["items"]) == 1
+    assert data["items"][0]["course_id"] == course_a["id"]
 
 
 # ── DELETE /enrollments/{id}

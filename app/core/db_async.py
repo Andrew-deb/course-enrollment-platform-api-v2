@@ -5,6 +5,7 @@ from app.core.config import settings
 engine = create_async_engine(
     settings.DATABASE_URL_ASYNC,
     echo=settings.is_debug,
+    connect_args={"statement_cache_size": 0},
 )
 
 AsyncSessionLocal = sessionmaker(

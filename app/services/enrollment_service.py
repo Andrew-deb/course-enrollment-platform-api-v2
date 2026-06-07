@@ -5,6 +5,7 @@ from app.models.enrollments import Enrollment
 from app.models.users import User
 from app.repositories.course_repository import CourseRepository
 from app.repositories.enrollment_repository import EnrollmentRepository
+from app.repositories.audit_log_repository import AuditLogRepository
 
 
 class EnrollmentService:
@@ -47,7 +48,10 @@ class EnrollmentService:
             )
 
         # 5. Create enrollment
-        return await EnrollmentRepository.create(db, current_user.id, course_id)
+        enrollment = await EnrollmentRepository.create(db, current_user.id, course_id)
+        # Log audit log
+        await AuditLogRepository.create(db, current_user.id, enrollment.id, "ENROLL")
+        return enrollment
 
     @staticmethod
     async def deregister(
@@ -65,21 +69,29 @@ class EnrollmentService:
                 detail="Not your enrollment",
             )
         await EnrollmentRepository.delete(db, enrollment)
+        # Log audit log
+        await AuditLogRepository.create(db, current_user.id, enrollment.id, "DEREGISTER")
 
     @staticmethod
     async def get_student_enrollments(
-        db: AsyncSession, user_id: int
-    ) -> list[Enrollment]:
-        return await EnrollmentRepository.get_by_user(db, user_id)
+        db: AsyncSession, user_id: int, skip: int = 0, limit: int = 20
+    ) -> tuple[list[Enrollment], int]:
+        items = await EnrollmentRepository.get_by_user(db, user_id, skip=skip, limit=limit)
+        total = await EnrollmentRepository.count_by_user(db, user_id)
+        return items, total
 
     @staticmethod
     async def get_all_enrollments(
-        db: AsyncSession, course_id: int | None = None
-    ) -> list[Enrollment]:
-        return await EnrollmentRepository.get_all(db, course_id=course_id)
+        db: AsyncSession, course_id: int | None = None, skip: int = 0, limit: int = 20
+    ) -> tuple[list[Enrollment], int]:
+        items = await EnrollmentRepository.get_all(db, course_id=course_id, skip=skip, limit=limit)
+        total = await EnrollmentRepository.count_all(db, course_id=course_id)
+        return items, total
 
     @staticmethod
-    async def admin_remove(db: AsyncSession, enrollment_id: int) -> None:
+    async def admin_remove(
+        db: AsyncSession, enrollment_id: int, current_user: User
+    ) -> None:
         enrollment = await EnrollmentRepository.get_by_id(db, enrollment_id)
         if not enrollment:
             raise HTTPException(
@@ -87,3 +99,6 @@ class EnrollmentService:
                 detail="Enrollment not found",
             )
         await EnrollmentRepository.delete(db, enrollment)
+        # Log audit log (system tracks operator)
+        await AuditLogRepository.create(db, current_user.id, enrollment.id, "ADMIN_REMOVE")
+

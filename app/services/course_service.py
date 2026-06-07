@@ -9,8 +9,12 @@ from app.schemas.courses import CourseCreate, CourseUpdate, CoursePatch
 class CourseService:
 
     @staticmethod
-    async def get_all_active(db: AsyncSession) -> list[Course]:
-        return await CourseRepository.get_all_active(db)
+    async def get_all_active(
+        db: AsyncSession, skip: int = 0, limit: int = 20, title: str | None = None
+    ) -> tuple[list[Course], int]:
+        items = await CourseRepository.get_all_active(db, skip=skip, limit=limit, title=title)
+        total = await CourseRepository.count_active(db, title=title)
+        return items, total
 
     @staticmethod
     async def get_by_id(db: AsyncSession, course_id: int) -> Course:

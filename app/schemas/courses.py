@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -27,5 +28,14 @@ class CourseRead(BaseModel):
     code: str
     capacity: int
     is_active: bool
+    deleted_at: datetime | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class PaginatedCourses(BaseModel):
+    items: list[CourseRead]
+    total: int
+    skip: int
+    limit: int
+
